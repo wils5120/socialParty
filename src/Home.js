@@ -1,78 +1,90 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ImageBackground, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, FlatList, TouchableOpacity, ActivityIndicator, Button } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import StarRating from 'react-native-star-rating';
 
-export default ({ navigation }) => {
+export default ({ route: { params }, navigation }) => {
 
   const [datas, setDatas] = useState([]);
   const [loading, setLoading] = useState(true)
+  const [change, setchange] = useState(true)
+  const [test, setTest] = useState(false)
+
 
   useEffect(() => {
     fetch('https://social-party.herokuapp.com/api/clubs').then(response => response.json())
       .then(data => {
-        console.log(data)
         setDatas(data)
         setLoading(false)
       })
   }, [])
 
+  useEffect(() => {
+    setchange(true)
+  }, [params])
+
+
+  if (params != undefined && change) {
+    setTest(true)
+    setchange(false)
+  }
+
+  const clean = () => {
+    setTest(false)
+
+  }
+
+  if (params != params) {
+    setDatas(params)
+  }
+
+
   if (loading) {
     return <View style={styles.containerLoad}>
       <Text style={styles.textLoad}>Espera un momento</Text>
-      <ActivityIndicator  size="large" color="#00000"/>
+      <ActivityIndicator size="large" color="#00000" />
     </View>
   }
 
-  const imgs = {
-    fristImg: require('../assets/bar1.jpg'),
-    SecondImg: require('../assets/bar2.jpg'),
-    Thehremg: require('../assets/bar3.jpeg'),
-    fourImg: require('../assets/bar1.jpg'),
-    fivetImg: require('../assets/bar2.jpg'),
-    sixtImg: require('../assets/bar3.jpeg'),
-    sevenImg: require('../assets/bar1.jpg'),
-    eightImg: require('../assets/bar3.jpeg'),
-    nineImg: require('../assets/bar1.jpg'),
-    teenImg: require('../assets/bar2.jpg'),
-
-  }
-
-
-  const dataBar = [
-    { key: '1', name: 'LA SANTA', description: 'Buen bar para menores', event: 'no', certificateCovid: 'no', img: imgs.fristImg, open: 'Abierto', rating: 2 },
-    { key: '2', name: 'TONICA', description: 'Buen bar para bailar en psina picha', event: 'si', certificateCovid: 'si', img: imgs.SecondImg, open: 'Abierto', rating: 3 },
-    { key: '3', name: 'PARADISE', description: 'Buen bar para ver', event: 'si', certificateCovid: 'no', img: imgs.Thehremg, open: 'Abierto', rating: 1 },
-    { key: '4', name: 'MIDLET', description: 'Buen bar para beber', event: 'no', certificateCovid: 'si', img: imgs.fourImg, open: 'Abierto', rating: 5 },
-    { key: '5', name: 'LA 51', description: 'Buen bar para gozata', event: 'si', certificateCovid: 'no', img: imgs.fivetImg, open: 'Abierto', rating: 2 },
-    { key: '6', name: 'GUADALUPE', description: 'Buen bar para rezar', event: 'no', certificateCovid: 'si', img: imgs.sixtImg, open: 'Abierto', rating: 4 },
-    { key: '7', name: 'EL PAISA', description: 'Buen bar para beber con musica', event: 'si', certificateCovid: 'no', img: imgs.sevenImg, open: 'Abierto', rating: 2 },
-    { key: '8', name: 'BAR AL SON DE MATAS', description: 'Perreo intenso', event: 'si', certificateCovid: 'si', img: imgs.eightImg, open: 'Abierto', rating: 3 },
-    { key: '9', name: 'PURA SALSA', description: 'SALSEALO', event: 'si', certificateCovid: 'no', img: imgs.nineImg, open: 'Abierto', rating: 5 },
-    { key: '10', name: 'PURO PERREO', description: 'Perreo intenso', event: 'no', certificateCovid: 'si', img: imgs.teenImg, open: 'Abierto', rating: 1 },
-  ]
-
-
 
   return (
+
     <View style={styles.container}>
       <View style={styles.header}>
         <Ionicons
           name="menu" color={'#00095E'} size={33} onPress={() => navigation.openDrawer()} />
         <Text style={styles.textHeader}>HOME</Text>
       </View>
+      {
+        test ?
+          <View style={styles.boxButton}>
+            <Button title="Borrar Filtros" onPress={clean} color="#250675" />
+          </View>
+          : null
+      }
+
       <View style={styles.body}>
         <FlatList
-          data={dataBar}
+          data={test ? params[0] : datas}
           renderItem={({ item }) =>
-            <TouchableOpacity onPress={() => navigation.navigate('Clubs')}>
-              <ImageBackground style={styles.imgs} source={item.img} >
+            <TouchableOpacity onPress={() => navigation.navigate('Clubs', { id: item._id })}>
+              <ImageBackground style={styles.imgs} source={{ uri: item.background }} >
                 <View style={styles.contetText}>
-                  <Text id={item.key} style={styles.titleName}>{item.name} </Text>
-                  <Text style={styles.texts}>{item.description} </Text>
-                  <Text style={styles.texts}>Evento: {item.event} </Text>
-                  <Text style={styles.texts}>Certificado Covid: {item.certificateCovid} </Text>
-                  <View style={styles.star}>
+                  <Text id={item._id} keyExtractor={item => item._id} style={styles.titleName}>{item.name} </Text>
+                  <Text style={styles.texts}>{item.desc} </Text>
+                  {
+                    item.events.length > 0 ?
+                      <Text style={styles.texts}>Evento: Si </Text>
+                      :
+                      <Text style={styles.texts}>Evento: No </Text>
+                  }
+                  {
+                    item.covid ?
+                      <Text style={styles.texts}>Certificado Covid: Si </Text>
+                      :
+                      <Text style={styles.texts}>Certificado Covid: No </Text>
+                  }
+                  {/*   <View style={styles.star}>
                     <StarRating
                       disabled={false}
                       emptyStar={'ios-star-outline'}
@@ -83,25 +95,38 @@ export default ({ navigation }) => {
                       rating={item.rating}
                       fullStarColor={'#F5D73A'}
                       starSize={30}
-                    /* selectedStar={onStarRatingPress(rating)} */
+                        selectedStar={onStarRatingPress(rating)}
                     />
-                  </View>
+                  </View> */}
                 </View>
                 <View style={styles.contentStore}>
-                  <View style={styles.stored}>
-                    <Text style={styles.texts}> {item.open} </Text>
-                  </View>
+                  {
+                    item.state == 'open' ?
+                      <View style={styles.stored}>
+                        <Text style={styles.texts}> {item.state} </Text>
+                      </View>
+                      :
+                      <View style={styles.storedClosed}>
+                        <Text style={styles.texts}> {item.state} </Text>
+                      </View>
+                  }
+
                 </View>
               </ImageBackground>
             </TouchableOpacity>
           }
+          keyExtractor={(item, index) => index.toString()}
         />
       </View>
     </View>
+
   )
 }
 
 const styles = StyleSheet.create({
+  boxButton: {
+    marginTop: 10
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -154,6 +179,11 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 5,
     backgroundColor: '#055C6B'
+  },
+  storedClosed: {
+    padding: 8,
+    borderRadius: 5,
+    backgroundColor: '#FF1A35'
   },
   star: {
     flex: 1,

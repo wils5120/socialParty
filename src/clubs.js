@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, Image, ImageBackground, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Image, ImageBackground, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import StarRating from 'react-native-star-rating';
 import { SliderBox } from "react-native-image-slider-box";
@@ -12,38 +12,63 @@ import Map from './Map';
 
 
 
-export default ({ navigation }) => {
+export default ({ route, navigation }) => {
 
     const [viewMaps, setViewMaps] = useState(false)
+    const [datas, setDatas] = useState([]);
+    const [loading, setLoading] = useState(true)
+    const [locations, setLocations] = useState(null);
+    const [imgData, setimgData] = useState([]);
+    const [products, setProducts] = useState([]);
+
+
+    useEffect(() => {
+        setLoading(true)
+        const dataLoad = []
+        const dataProducts = []
+        fetch('https://social-party.herokuapp.com/api/clubs/' + route.params.id).then(response => response.json())
+            .then(data => {
+                setDatas(data)
+                setLoading(false)
+                dataProducts.push(data.products)
+                setProducts(dataProducts)
+                if (data.gallery.length > 0) {
+                    for (let i = 0; data.gallery.length; i++) {
+                        dataLoad.push(data.gallery[i].imageURL)
+                        setimgData(dataLoad)
+                    }
+                }
+                let longitude = parseFloat(data.longitud, 10)
+                let latitude = parseFloat(data.latitud, 10)
+                let dataLocation = { "coordinate": { latitude, longitude } }
+                setLocations(dataLocation)
+            })
+    }, [route.params.id])
+
 
     const viewMap = () => {
         setViewMaps(viewMaps => !viewMaps)
     }
 
-    const dataImg = [
-        require('../assets/bar1.jpg'),
-        require('../assets/bar2.jpg'),
-        require('../assets/bar3.jpeg'),
-        require('../assets/bar1.jpg'),
-    ]
+    if (loading) {
+        return <View style={styles.containerLoad}>
+            <Text style={styles.textLoad}>Espera un momento</Text>
+            <ActivityIndicator size="large" color="#00000" />
+        </View>
+    }
 
     var titleDescrip = 'Descripción'
-    var desdrip = 'Este bar cuenta con una zona para fumadores, es super amplico para que el aire circule ademas de esto contamos con uno de los mejores Dj de Bogota'
     var descripImg = require('../assets/image18.png')
 
     var titleEvent = 'Evento'
     var event = ' El dia de hoy se tendra en exclusiva a J Balbin no te lo pierdas!!!! :D'
     var eventImg = require('../assets/events.png')
-    var eventActive = true
 
     var titlePromotion = 'Promociónes'
     var descripPromo = 'El dia de hoy hay barra libre hasta las 10pm aprobecha y cae con tu parche, no te lo pierdas'
     var promoImg = require('../assets/promo.png')
-    var promoActive = false
-
 
     var titleCover = 'Cover/ Derechos de admisión'
-    var descripCover = 'Este bar cuenta con un cover de $10.000 pesos ademas de esto exije codeDress.'
     var coverImg = require('../assets/Rectangle21.png')
 
     return (
@@ -51,13 +76,13 @@ export default ({ navigation }) => {
             <View style={styles.header}>
                 <Ionicons
                     name="menu" color={'#00095E'} size={33} onPress={() => navigation.openDrawer()} />
-                <Text style={styles.textHeader}>TONICA</Text>
+                <Text style={styles.textHeader}>{datas.name}</Text>
             </View>
             <View style={styles.body}>
                 <ScrollView contentContainerStyle={styles.contentContainer}>
                     <View>
                         <SliderBox
-                            images={dataImg}
+                            images={imgData}
                             sliderBoxHeight={250}
                             dotColor="#fff"
                             dotStyle={{
@@ -69,15 +94,15 @@ export default ({ navigation }) => {
                         />
                     </View>
                     <View style={styles.contentDesripClub}>
-                        <CardsData descrip={desdrip} img={descripImg} title={titleDescrip} />
-                        {eventActive ? <CardsData descrip={event} img={eventImg} title={titleEvent} /> : null}
-                        {promoActive ? <CardsData descrip={descripPromo} img={promoImg} title={titlePromotion} /> : null}
-                        <CardsData descrip={descripCover} img={coverImg} title={titleCover} />
-                        <Menu navigation={navigation} />
+                        <CardsData descrip={datas.desc} img={descripImg} title={titleDescrip} />
+                        {datas.events.length > 0 ? <CardsData descrip={event} img={eventImg} title={titleEvent} /> : null}
+                        {datas.sales.length > 0 ? <CardsData descrip={descripPromo} img={promoImg} title={titlePromotion} /> : null}
+                        <CardsData descrip={datas.cover} img={coverImg} title={titleCover} />
+                        {datas.products.length > 0 ? <Menu navigation={navigation} datas={products} /> : null}
                         <MapCard onPress={viewMap} />
                         {
                             viewMaps ?
-                                <Map />
+                                <Map locations={locations} />
                                 :
                                 null
                         }
@@ -114,4 +139,12 @@ const styles = StyleSheet.create({
         fontSize: 24,
         marginLeft: 5
     },
+    containerLoad: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    textLoad: {
+        fontSize: 30
+    }
 })

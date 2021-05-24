@@ -1,41 +1,74 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Text, View, Button, TouchableHighlight, Image, ScrollView, Switch, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, Text, View, Button, ActivityIndicator, Image, ScrollView, Switch, TouchableOpacity } from 'react-native';
 
 export default ({ navigation }) => {
 
-  var salsa = require('../assets/tambor-con-palitos.jpg')
-  var reggetton = require('../assets/amplificador.jpg')
-  var electronic = require('../assets/piano.jpg')
-  var rock = require('../assets/silueta-variante-de-guitarra-electrica.jpg')
-  var vallenato = require('../assets/acordeon.jpg')
+  var salsa = require('../assets/tambor-con-palitos.png')
+  var reggetton = require('../assets/amplificador.png')
+  var electronic = require('../assets/piano.png')
+  var rock = require('../assets/silueta-variante-de-guitarra-electrica.png')
+  var vallenato = require('../assets/acordeon.png')
   var Crossover = require('../assets/danza.png')
-  var todo = require('../assets/vino.jpg')
-  var casual = require('../assets/toast.jpg')
-  var lgtb = require('../assets/variante-de-copa-con-detalles-en-blanco.jpg')
+  var todo = require('../assets/vino.png')
+  var casual = require('../assets/toast.png')
+  var lgtb = require('../assets/variante-de-copa-con-detalles-en-blanco.png')
   var internacional = require('../assets/trago-de-tequila.png')
   var coctel = require('../assets/copa-de-coctel-en-copa-de-vino.png')
 
-  const [isEnabled, setIsEnabled] = useState(false);
+  const [isEnabledCovid, setIsEnabledCovid] = useState(false);
+  const [cover, setIcover] = useState(false);
+  const [events, setevents] = useState(false);
+  const [eventSearch, seteventSearch] = useState(null);
 
-  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+  const toggleSwitch = () => setIsEnabledCovid(!isEnabledCovid);
+  const toggleSwitchCover = () => setIcover(!cover);
+  const toggleSwitchEvents = () => setevents(!events);
+  const [loader, setLoader] = useState(false)
 
+  const [activeButton, setActiveButton] = useState(null);
 
-  const [activeButton, setActiveButton] = useState(false);
-
-  const changeBgColor = () => {
-    setActiveButton(activeButton => !activeButton)
+  const changeBgColor = (type) => {
+    setActiveButton(type)
   }
 
 
-  const [activeButtonGenr, setActiveButtonGenr] = useState(false);
+  const [activeButtonGenr, setActiveButtonGenr] = useState(null);
 
-  const changeBgColorGnr = () => {
-    setActiveButtonGenr(activeButtonGenr => !activeButtonGenr)
+  const changeBgColorGnr = (type) => {
+    setActiveButtonGenr(type)
   }
 
-  console.log(activeButton)
+  const searchClub = () => {
+    let arrayTest = []
+    setLoader(true)
+    let submitEvent
+    if (events == true) {
+      submitEvent = 0
+    } else {
+      submitEvent = 1
+    }
+    fetch('https://social-party.herokuapp.com/api/clubs?musical_genre=' + activeButtonGenr + '&type=' + activeButton + '&covid=' + true + '&cover=0&events=' + submitEvent)
+      .then(data => {
+        setLoader(false)
+        if (data.status == 200) {
+          data.json().then(Response => {
+            arrayTest.push(Response)
+            navigation.navigate('Home', arrayTest)
+          })
+        }
+      }).catch(error => {
+        console.log("errpr", error)
+      });
+  }
+
+  if (loader) {
+    return <View style={styles.containerLoad}>
+      <Text style={styles.textLoad}>Espera un momento</Text>
+      <ActivityIndicator size="large" color="#00000" />
+    </View>
+  }
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -50,44 +83,44 @@ export default ({ navigation }) => {
           </View>
           <View style={styles.contentGenre}>
             <View style={styles.genre}>
-              <TouchableHighlight>
-                <View  style={styles.buttonGenreInactive}>
+              <TouchableOpacity onPress={() => changeBgColorGnr('Urbano')}>
+                <View style={activeButtonGenr == 'Urbano' ? styles.buttonGenreActive : styles.buttonGenreInactive}>
                   <Image style={styles.imgGen} source={reggetton} />
-                  <Text style={styles.texts}>Reggaeton</Text>
+                  <Text style={styles.texts}>Urbano</Text>
                 </View>
-              </TouchableHighlight>
-              <TouchableHighlight>
-                <View style={styles.buttonGenreInactive}>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => changeBgColorGnr('Salsa')}>
+                <View style={activeButtonGenr == 'Salsa' ? styles.buttonGenreActive : styles.buttonGenreInactive}>
                   <Image style={styles.imgGen} source={salsa} />
                   <Text style={styles.texts}>Salsa</Text>
                 </View>
-              </TouchableHighlight>
-              <TouchableHighlight>
-                <View  style={styles.buttonGenreInactive}>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => changeBgColorGnr('Electronica')}>
+                <View style={activeButtonGenr == 'Electronica' ? styles.buttonGenreActive : styles.buttonGenreInactive}>
                   <Image style={styles.imgGen} source={electronic} />
                   <Text style={styles.texts}>Electronica</Text>
                 </View>
-              </TouchableHighlight>
+              </TouchableOpacity>
             </View>
             <View style={styles.genreLow}>
-              <TouchableHighlight>
-                <View style={styles.buttonGenreInactive}>
+              <TouchableOpacity onPress={() => changeBgColorGnr('Vallenato')}>
+                <View style={activeButtonGenr == 'Vallenato' ? styles.buttonGenreActive : styles.buttonGenreInactive}>
                   <Image style={styles.imgGen} source={vallenato} />
                   <Text style={styles.texts}>Vallenato</Text>
                 </View>
-              </TouchableHighlight>
-              <TouchableHighlight>
-                <View  style={styles.buttonGenreInactive}>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => changeBgColorGnr('Rock')}>
+                <View style={activeButtonGenr == 'Rock' ? styles.buttonGenreActive : styles.buttonGenreInactive}>
                   <Image style={styles.imgGen} source={rock} />
                   <Text style={styles.texts}>Rock</Text>
                 </View>
-              </TouchableHighlight>
-              <TouchableWithoutFeedback onPress={changeBgColorGnr}>
-                <View style={(activeButtonGenr) ? styles.buttonGenreActive : styles.buttonGenreInactive}>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => changeBgColorGnr('CrossOver')}>
+                <View style={activeButtonGenr == 'CrossOver' ? styles.buttonGenreActive : styles.buttonGenreInactive}>
                   <Image style={styles.imgGen} source={Crossover} />
                   <Text style={styles.texts}>Crossover</Text>
                 </View>
-              </TouchableWithoutFeedback>
+              </TouchableOpacity>
             </View>
           </View>
           <View style={styles.contenTitle}>
@@ -95,38 +128,38 @@ export default ({ navigation }) => {
           </View>
           <View style={styles.contentGenre}>
             <View style={styles.genre}>
-              <TouchableHighlight>
-                <View  style={styles.buttonGenreInactive}>
+              <TouchableOpacity onPress={() => changeBgColor('all')} style={styles.buttonTouch}>
+                <View style={activeButton == 'all' ? styles.buttonGenreActive : styles.buttonGenreInactive}>
                   <Image style={styles.imgGen} source={todo} />
                   <Text style={styles.texts}>De todo</Text>
                 </View>
-              </TouchableHighlight>
-              <TouchableHighlight>
-                <View  style={styles.buttonGenreInactive}>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => changeBgColor('Casual')} style={styles.buttonTouch}>
+                <View style={activeButton == 'Casual' ? styles.buttonGenreActive : styles.buttonGenreInactive}>
                   <Image style={styles.imgGen} source={casual} />
                   <Text style={styles.texts}>Casual</Text>
                 </View>
-              </TouchableHighlight>
-              <TouchableHighlight>
-                <View style={styles.buttonGenreInactive}>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => changeBgColor('LGTB')} style={styles.buttonTouch}>
+                <View style={activeButton == 'LGTB' ? styles.buttonGenreActive : styles.buttonGenreInactive}>
                   <Image style={styles.imgGen} source={lgtb} />
                   <Text style={styles.texts}>LGTB</Text>
                 </View>
-              </TouchableHighlight>
+              </TouchableOpacity>
             </View>
             <View style={styles.genreLow}>
-              <TouchableWithoutFeedback onPress={changeBgColor} style={styles.buttonTouch}>
-                <View style={(activeButton) ? styles.buttonGenreActive : styles.buttonGenreInactive}>
+              <TouchableOpacity onPress={() => changeBgColor('Internacional')} style={styles.buttonTouch}>
+                <View style={activeButton == 'Internacional' ? styles.buttonGenreActive : styles.buttonGenreInactive}>
                   <Image style={styles.imgGen} source={internacional} />
                   <Text style={styles.texts}>Internacional</Text>
                 </View>
-              </TouchableWithoutFeedback>
-              <TouchableWithoutFeedback style={styles.buttonTouch}>
-                <View style={styles.buttonGenreInactive}>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.buttonTouch} onPress={() => changeBgColor('Bar/Cantina')} >
+                <View style={activeButton == 'Bar/Cantina' ? styles.buttonGenreActive : styles.buttonGenreInactive}>
                   <Image style={styles.imgGen} source={coctel} />
-                  <Text style={styles.texts}>Cocteles</Text>
+                  <Text style={styles.texts}>cantina</Text>
                 </View>
-              </TouchableWithoutFeedback>
+              </TouchableOpacity>
             </View>
           </View>
           <View style={styles.contenTitle}>
@@ -138,10 +171,10 @@ export default ({ navigation }) => {
                 <Text style={styles.textFilts}>Certificado Covid</Text>
                 <Switch
                   trackColor={{ false: "#E9E9E9", true: "#E9E9E9" }}
-                  thumbColor={isEnabled ? "#250675" : "#0A0A0A"}
+                  thumbColor={isEnabledCovid ? "#250675" : "#0A0A0A"}
                   ios_backgroundColor="#E9E9E9"
                   onValueChange={toggleSwitch}
-                  value={isEnabled}
+                  value={isEnabledCovid}
                   style={styles.Switchs}
                 />
               </View>
@@ -149,10 +182,10 @@ export default ({ navigation }) => {
                 <Text style={styles.textFilts}>Cover</Text>
                 <Switch
                   trackColor={{ false: "#E9E9E9", true: "#E9E9E9" }}
-                  thumbColor={isEnabled ? "#250675" : "#0A0A0A"}
+                  thumbColor={cover ? "#250675" : "#0A0A0A"}
                   ios_backgroundColor="#E9E9E9"
-                  onValueChange={toggleSwitch}
-                  value={isEnabled}
+                  onValueChange={toggleSwitchCover}
+                  value={cover}
                   style={styles.Switchs}
                 />
               </View>
@@ -160,10 +193,10 @@ export default ({ navigation }) => {
                 <Text style={styles.textFilts}>Eventos</Text>
                 <Switch
                   trackColor={{ false: "#E9E9E9", true: "#E9E9E9" }}
-                  thumbColor={isEnabled ? "#250675" : "#0A0A0A"}
+                  thumbColor={events ? "#250675" : "#0A0A0A"}
                   ios_backgroundColor="#E9E9E9"
-                  onValueChange={toggleSwitch}
-                  value={isEnabled}
+                  onValueChange={toggleSwitchEvents}
+                  value={events}
                   style={styles.Switchs}
                 />
               </View>
@@ -171,7 +204,7 @@ export default ({ navigation }) => {
           </View>
           <View style={styles.contSearshFilter}>
             <Text style={styles.textCleanFilters}>Limpiar filtros</Text>
-            <Button title="Buscar" color="#250675" style={styles.buttons}></Button>
+            <Button title="Buscar" color="#250675" style={styles.buttons} onPress={searchClub}></Button>
           </View>
         </ScrollView>
       </View>
@@ -180,6 +213,14 @@ export default ({ navigation }) => {
 }
 
 const styles = StyleSheet.create({
+  containerLoad: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  textLoad: {
+    fontSize: 30
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -281,7 +322,7 @@ const styles = StyleSheet.create({
     height: 95,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 5, 
+    marginTop: 5,
     paddingTop: 25,
     paddingLeft: 15,
     paddingRight: 15,

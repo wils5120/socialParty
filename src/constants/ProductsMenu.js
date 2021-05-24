@@ -4,23 +4,23 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default (props) => {
     const dataMenuTop = props.dataMenuTop
-
+    const dataMenu = props.title
     return (
         <View style={styles.content}>
-            <Text style={styles.textTitle}> {dataMenuTop.nameSpace} </Text>
+            <Text style={styles.textTitle}> {dataMenu} </Text>
             <FlatList
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                data={dataMenuTop.data}
+                data={dataMenuTop}
                 renderItem={({ item }) =>
                     <View style={styles.boxProducts} id={item.key}>
-                        <Image style={styles.img} source={item.productImg} />
+                        <Image style={styles.img} source={{ uri: item.imageURL }} />
                         <View style={styles.boxText}>
-                            <Text style={styles.texts}> ${item.value} </Text>
+                            <Text style={styles.texts}> ${item.price} </Text>
                             {
-                                item.des ?
+                                item.status > 0 ?
                                     <View style={styles.boxDesc}>
-                                        <Text style={styles.textDest}>-{item.descValue}%</Text>
+                                        <Text style={styles.textDest}>-{item.status}%</Text>
                                     </View>
                                     :
                                     null
@@ -29,6 +29,7 @@ export default (props) => {
                         </View>
                     </View>
                 }
+                keyExtractor={(item, index) => index.toString()}
             />
         </View>
     )

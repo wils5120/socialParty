@@ -8,6 +8,9 @@ import Home from './src/Home';
 import Filtros from './src/Filters';
 import Clubs from './src/clubs';
 import MenuClub from './src/MenuClub';
+import AuthLoading from './src/AuthLoding';
+import CreateUser from './src/createUser';
+
 
 
 
@@ -16,7 +19,7 @@ const Drawer = createDrawerNavigator();
 function Router() {
 
   return (
-    <Drawer.Navigator initialRouteName="Login"
+    <Drawer.Navigator initialRouteName="AuthLoading"
       drawerStyle={{
         backgroundColor: '#00095E',
       }}
@@ -42,6 +45,16 @@ function Router() {
           hideStatusBar: true
         }}
       />
+
+      <Drawer.Screen
+        name="AuthLoading"
+        component={AuthLoading}
+        options={{
+          gestureEnabled: false,
+          hideStatusBar: true
+        }}
+      />
+
       <Drawer.Screen
         name="Clubs"
         component={Clubs}
@@ -49,6 +62,14 @@ function Router() {
       <Drawer.Screen
         name="MenuClub"
         component={MenuClub}
+      />
+      <Drawer.Screen
+        name="CreateUser"
+        component={CreateUser}
+        options={{
+          gestureEnabled: false,
+          hideStatusBar: true
+        }}
       />
     </Drawer.Navigator>
   );

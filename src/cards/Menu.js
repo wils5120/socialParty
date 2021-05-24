@@ -3,12 +3,11 @@ import { Text, ImageBackground, StyleSheet, TouchableHighlight } from 'react-nat
 import { Ionicons } from '@expo/vector-icons';
 
 
-export default ({navigation}) => {
+export default ({navigation, datas}) => {
 
     var menuImg = require('../../assets/Rectangle24.png')
-    
     return (
-        <TouchableHighlight onPress={() => navigation.navigate('MenuClub')} >
+        <TouchableHighlight onPress={() => navigation.navigate('MenuClub',  datas)} >
             <ImageBackground style={styles.imgMenu} source={menuImg} imageStyle={{ borderRadius: 7 }}>
                 <Text style={styles.titleBoxMap}>Carta</Text>
                 <Ionicons name="chevron-forward-sharp" color={'#ffff'} size={33} />

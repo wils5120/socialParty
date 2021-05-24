@@ -4,15 +4,13 @@ import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import Constants from 'expo-constants';
 
-export default () => {
-    const [location, setLocation] = useState({})
+export default ({ locations }) => {
+
     const Searchlocation = async () => {
         const { status } = await Location.requestPermissionsAsync()
         if (status !== 'granted') {
             return Alert.alert('No tienes los permisos necesarios para acceder al mapa, por favor acepta los permisos de localización')
         }
-        const location = await Location.getCurrentPositionAsync({})
-        setLocation(location)
     }
 
     useEffect(() => {
@@ -21,14 +19,13 @@ export default () => {
 
     return (
         <MapView style={styles.map} >
-            { location.coords
+            { locations != null
                 ?
-                    <Marker
-                        coordinate={location.coords}
-                        title="Bar"
-                    />
+                <Marker
+                    coordinate={locations.coordinate}
+                />
                 :
-                    null
+                null
 
             }
         </MapView>

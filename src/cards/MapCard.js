@@ -12,9 +12,9 @@ export default ({ onPress }) => {
             <ImageBackground style={styles.imgAddress} source={mapImg} imageStyle={{ borderRadius: 7 }}>
                 <View style={styles.containerAddress}>
                     <Text style={styles.titleBox}>Dirección</Text>
-                    <Text style={styles.letterBox}>
+     {/*                <Text style={styles.letterBox}>
                         cra 88i #44 nor zona T
-            </Text>
+            </Text> */}
                 </View>
                 <Ionicons name="chevron-forward-sharp" color={'#ffff'} size={33} />
             </ImageBackground>
